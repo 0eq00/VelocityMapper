@@ -1,0 +1,90 @@
+desc:0eq00 Velocity Mapper
+//tags: MIDI processing
+
+slider1:/0eq00:default.txt:Mapping File
+slider2:1<0,2,0.01>Factor
+slider3:64<1,127,1>Center
+slider4:0<0,127,1>Lowest Key (MIDI Note #)
+slider5:127<1,127,1>Highest Key (MIDI Note #)
+
+in_pin:none
+out_pin:none
+
+@init
+
+@serialize
+
+@slider
+fileHandle = file_open(slider1);
+fileHandle > 0 && file_text(fileHandle) ?
+(
+  i=0;
+  loop(127,
+    i=i+1;
+    new_vel[i] = 1;
+  );
+  
+  i = 0;
+  file_string(fileHandle, version);
+  file_avail(fileHandle) ? i = i + 1;
+  while
+  (
+    file_var(fileHandle, new_vel[i]);
+    file_avail(fileHandle) ? i = i + 1;
+  );
+  file_close(fileHandle);
+
+  center = slider3;
+  factor = new_vel[center] * slider2 - new_vel[center]; 
+  i=0;
+  loop(127,
+    i=i+1;
+    i <= center ? rad = $pi/2/(center-1)*(i-1) :
+                  rad = $pi/2 + $pi/2/(127-center)*(i-center) ;
+    new_vel[i] = MIN(127,MAX(1,floor(new_vel[i] + sin(rad)*factor)));
+  );
+);
+
+@gfx 300 580
+gfx_setfont(1, "Arial", 32);
+gfx_r = 0.2;
+gfx_g = 0.8;
+gfx_b = 0.6;
+gfx_x = 1;
+gfx_y = 1;
+gfx_drawstr(version);
+gfx_setfont(1, "Arial", 14);
+i=0;
+loop(127,
+i=i+1;
+gfx_x = 100+i*3;
+gfx_y = 500-new_vel[i]*3;
+gfx_drawstr("+");
+);
+gfx_r = 1.0;
+gfx_g = 0.1;
+gfx_b = 0.1;
+gfx_x = 100+last_in*3;
+gfx_y = 500-last_out*3;
+gfx_drawstr("+");
+
+@block
+while (
+midirecv(ts,msg1,msg23) ? 
+(
+  m=msg1&240;
+  vel=(msg23/256)|0;
+  note=msg23&127;
+  m == 9*16 && vel >= 1 && vel <= 127 && note >= slider4 && note <= slider5 ?  
+  (
+      last_in = vel;
+      vel = new_vel[vel];
+      last_out = vel;
+      midisend(ts,msg1,note+vel*256); // send note on 
+  ) :
+  (
+    midisend(ts,msg1,msg23); // passthru
+  );
+  bla=1;
+);
+);
