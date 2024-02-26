@@ -5,7 +5,7 @@ slider1:/0eq00:default.txt:Mapping File
 slider2:1<0,2,0.01>Factor
 slider3:64<1,127,1>Center
 slider4:0<0,127,1>Lowest Key (MIDI Note #)
-slider5:127<1,127,1>Highest Key (MIDI Note #)
+slider5:127<0,127,1>Highest Key (MIDI Note #)
 
 in_pin:none
 out_pin:none
