@@ -1,6 +1,7 @@
 # Velocity Mapper
-It works on [ReaJS](https://www.reaper.fm/reaplugs/ "ReaPlugs") by Cockos.
-# Install
+There are two versions, one is works on [ReaJS](https://www.reaper.fm/reaplugs/ "ReaPlugs") by Cockos, and another one is a VST3 plugin using the JUCE framework.
+
+## How to install the ReaJS version
 Place them as follows.
 ```
 C:\Users\<someone>\AppData\Roaming\REAPER\Effects\0eq00\velocity_mapper
